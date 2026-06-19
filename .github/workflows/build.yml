@@ -35,7 +35,7 @@ jobs:
             archive: xrss-linux-x86_64.tar.gz
             exe_src: zig-out/bin/xrss
 
-          - target: x86_64-windows
+          - target: x86_64-windows-msvc
             cpu: baseline
             os: windows-latest
             archive: xrss-windows-x86_64.zip
