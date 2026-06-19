@@ -1,0 +1,153 @@
+Channel Ziglang.org News {
+  Link             https://ziglang.org/news/
+  Description      Recent news
+  Language         en-us
+  Last build date  Fri, 19 Jun 2026 10:40:32 +0000
+  Items [
+    Item {
+      Title            Welcoming Our Newest Core Team Members
+      Link             https://ziglang.org/news/welcoming-new-team-members/
+      Publication date Tue, 16 Jun 2026 00:00:00 +0000
+    }
+    Item {
+      Title            Core Team Member Spotlight: Alex Rønne Petersen
+      Link             https://ziglang.org/news/core-team-spotlight-alexrp/
+      Publication date Sat, 18 Apr 2026 00:00:00 +0000
+    }
+    Item {
+      Title            0.16.0 Released
+      Link             https://ziglang.org/news/0.16.0-released/
+      Publication date Tue, 14 Apr 2026 00:00:00 +0000
+    }
+    Item {
+      Title            Migrating from GitHub to Codeberg
+      Link             https://ziglang.org/news/migrating-from-github-to-codeberg/
+      Publication date Wed, 26 Nov 2025 00:00:00 +0000
+    }
+    Item {
+      Title            The First ziglang.org Outage
+      Link             https://ziglang.org/news/first-outage/
+      Publication date Mon, 08 Sep 2025 00:00:00 +0000
+    }
+    Item {
+      Title            2025 Financial Report and Fundraiser
+      Link             https://ziglang.org/news/2025-financials/
+      Publication date Tue, 02 Sep 2025 00:00:00 +0000
+    }
+    Item {
+      Title            Community Mirrors: A Better Way To Download Zig
+      Link             https://ziglang.org/news/announcing-community-mirrors/
+      Publication date Mon, 30 Jun 2025 00:00:00 +0000
+    }
+    Item {
+      Title            Good News! 0.14.0 Delayed
+      Link             https://ziglang.org/news/0.14.0-delayed/
+      Publication date Fri, 14 Feb 2025 18:20:33 +0000
+    }
+    Item {
+      Title            Donor Bounty: Add Support for'-x'In Zig's macOS Linker
+      Link             https://ziglang.org/news/second-donor-bounty/
+      Publication date Thu, 13 Feb 2025 00:00:00 +0000
+    }
+    Item {
+      Title            What to Expect from Release Month
+      Link             https://ziglang.org/news/what-to-expect-from-release-month/
+      Publication date Fri, 17 Jan 2025 01:46:51 +0000
+    }
+    Item {
+      Title            300k USD Donation Pledged by Mitchell Hashimoto
+      Link             https://ziglang.org/news/300k-from-mitchellh/
+      Publication date Tue, 01 Oct 2024 00:00:00 +0000
+    }
+    Item {
+      Title            The Zig Website Has Been Re-engineered
+      Link             https://ziglang.org/news/website-zine/
+      Publication date Mon, 30 Sep 2024 00:00:00 +0000
+    }
+    Item {
+      Title            Migrating from AWS to Self-Hosting
+      Link             https://ziglang.org/news/migrate-to-self-hosting/
+      Publication date Thu, 12 Sep 2024 20:52:45 +0000
+    }
+    Item {
+      Title            Introducing Carmen the Allocgator
+      Link             https://ziglang.org/news/carmen-the-allocgator/
+      Publication date Mon, 10 Jun 2024 00:00:00 +0000
+    }
+    Item {
+      Title            Matthew Lugg Joins the Core Zig Team
+      Link             https://ziglang.org/news/welcome-matthew-lugg/
+      Publication date Mon, 12 Feb 2024 19:36:26 +0000
+    }
+    Item {
+      Title            Donor Bounty: Labeled Switch Continue Syntax
+      Link             https://ziglang.org/news/first-donor-bounty/
+      Publication date Tue, 23 Jan 2024 01:00:00 +0000
+    }
+    Item {
+      Title            Donor Bounties: A New Kind of Feature Bounty
+      Link             https://ziglang.org/news/announcing-donor-bounties/
+      Publication date Tue, 23 Jan 2024 00:00:00 +0000
+    }
+    Item {
+      Title            2024 Financial Report and Fundraiser
+      Link             https://ziglang.org/news/2024-financials/
+      Publication date Tue, 16 Jan 2024 00:00:00 +0000
+    }
+    Item {
+      Title            Bounties Damage Open Source Projects
+      Link             https://ziglang.org/news/bounties-damage-open-source-projects/
+      Publication date Thu, 14 Sep 2023 19:54:33 +0000
+    }
+    Item {
+      Title            Jacob Young Joins the Core Zig Team
+      Link             https://ziglang.org/news/welcome-jacob-young/
+      Publication date Mon, 31 Jul 2023 22:23:08 +0000
+    }
+    Item {
+      Title            The Upcoming Release Postponed Two More Weeks and Lacks Async Functions
+      Link             https://ziglang.org/news/0.11.0-postponed-again/
+      Publication date Wed, 19 Jul 2023 02:27:18 +0000
+    }
+    Item {
+      Title            Goodbye to the C++ Implementation of Zig
+      Link             https://ziglang.org/news/goodbye-cpp/
+      Publication date Wed, 07 Dec 2022 20:13:00 +0000
+    }
+    Item {
+      Title            Updated Public Financial Information
+      Link             https://ziglang.org/news/financials-update/
+      Publication date Mon, 31 Jan 2022 00:00:00 +0000
+    }
+    Item {
+      Title            Jakub Konka Hired Full Time
+      Link             https://ziglang.org/news/jakub-konka-hired-full-time/
+      Publication date Mon, 05 Apr 2021 21:05:00 +0000
+    }
+    Item {
+      Title            Website Redesigned with Community-Sourced Translations
+      Link             https://ziglang.org/news/website-i18n-redesign/
+      Publication date Tue, 12 Jan 2021 22:27:33 +0000
+    }
+    Item {
+      Title            Zig 0.7.1 Released: 69 Bugs Fixed
+      Link             https://ziglang.org/news/zig-0.7.1/
+      Publication date Sun, 13 Dec 2020 00:00:00 +0000
+    }
+    Item {
+      Title            Zig at FOSDEM 2021: CfP is Open!
+      Link             https://ziglang.org/news/fosdem-2021/
+      Publication date Sat, 05 Dec 2020 00:00:00 +0000
+    }
+    Item {
+      Title            Zigソフトウェア財団とZenプログラミング言語に関する声明
+      Link             https://ziglang.org/news/statement-regarding-zen-programming-language/
+      Publication date Mon, 14 Sep 2020 00:00:00 +0000
+    }
+    Item {
+      Title            Announcing the Zig Software Foundation
+      Link             https://ziglang.org/news/announcing-zig-software-foundation/
+      Publication date Sat, 11 Jul 2020 00:00:00 +0000
+    }
+  ]
+}

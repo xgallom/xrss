@@ -1,0 +1,114 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.16.0
+
+      - name: Test
+        run: zig build test
+
+  build:
+    name: ${{ matrix.archive }}
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-linux-musl
+            cpu: baseline
+            os: ubuntu-latest
+            archive: xrss-linux-x86_64.tar.gz
+            exe_src: zig-out/bin/xrss
+
+          - target: x86_64-windows
+            cpu: baseline
+            os: windows-latest
+            archive: xrss-windows-x86_64.zip
+            exe_src: zig-out/bin/xrss.exe
+
+          - target: aarch64-macos
+            cpu: baseline
+            os: macos-latest
+            archive: xrss-macos-aarch64.tar.gz
+            exe_src: zig-out/bin/xrss
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.16.0
+          cache-key: ${{ matrix.os }}-0.16.0
+
+      - name: Build
+        run: zig build -Dtarget=${{ matrix.target }} -Dcpu=${{ matrix.cpu }} -Ooptimize=ReleaseFast
+
+      - name: Package SDK Architecture (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p staging/bin
+          mkdir -p staging/${{ matrix.lib_dir }}
+          mkdir -p staging/include/xrss
+          
+          cp ${{ matrix.exe_src }} staging/bin/xrss
+          
+          chmod +x staging/bin/xrss
+          
+          # Compress into final asset delivery shape
+          mkdir dist
+          tar -czf dist/${{ matrix.archive }} -C staging .
+
+      - name: Package SDK Architecture (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path staging/bin
+          New-Item -ItemType Directory -Force -Path staging/${{ matrix.lib_dir }}
+          
+          Copy-Item "${{ matrix.exe_src }}" -Destination "staging/bin/xrss.exe"
+          
+          New-Item -ItemType Directory -Force -Path dist
+          Compress-Archive -Path staging/* -DestinationPath "dist/${{ matrix.archive }}"
+
+      - name: Upload Packaged Asset
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: dist/
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all compressed assets
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
