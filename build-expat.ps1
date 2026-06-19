@@ -3,7 +3,7 @@
 # New-Item -Path "lib/build" -ItemType Directory -Force | Out-Null
 # New-Item -Path "lib/expat/build" -ItemType Directory -Force | Out-Null
 Set-Location "lib/expat/build"
-cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="../../build" -DCMAKE_BUILD_TYPE=Release
+cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="../../build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 if ($LASTEXITCODE -eq 0) {
     cmake --build . --config Release
     

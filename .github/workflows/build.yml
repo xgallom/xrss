@@ -29,9 +29,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-linux-musl
+          - target: x86_64-linux-gnu
             cpu: baseline
-            os: ubuntu-latest
+            os: ubuntu-22.04
             archive: xrss-linux-x86_64.tar.gz
             exe_src: zig-out/bin/xrss
 
