@@ -70,6 +70,9 @@ jobs:
           cp ${{ matrix.exe_src }} staging/bin/xrss
           
           chmod +x staging/bin/xrss
+
+          cp THIRDPARTY.md staging/
+          cp LICENSE.md staging/
           
           # Compress into final asset delivery shape
           mkdir dist
@@ -83,6 +86,9 @@ jobs:
           New-Item -ItemType Directory -Force -Path staging/${{ matrix.lib_dir }}
           
           Copy-Item "${{ matrix.exe_src }}" -Destination "staging/bin/xrss.exe"
+
+          Copy-Item "THIRDPARTY.md" -Destination "staging/THIRDPARTY.md"
+          Copy-Item "LICENSE.md" -Destionation "staging/LICENSE.md"
           
           New-Item -ItemType Directory -Force -Path dist
           Compress-Archive -Path staging/* -DestinationPath "dist/${{ matrix.archive }}"

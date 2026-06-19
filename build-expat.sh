@@ -1,9 +1,9 @@
 #!/bin/bash
 
-rm -rf lib/build
-rm -rf lib/expat/build
-mkdir -p lib/build
-mkdir -p lib/expat/build
+# rm -rf lib/build
+# rm -rf lib/expat/build
+# mkdir -p lib/build
+# mkdir -p lib/expat/build
 cd lib/expat/build
 cmake .. \
 	-DBUILD_SHARED_LIBS=OFF \
