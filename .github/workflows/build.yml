@@ -58,7 +58,7 @@ jobs:
           cache-key: ${{ matrix.os }}-0.16.0
 
       - name: Build
-        run: zig build -Dtarget=${{ matrix.target }} -Dcpu=${{ matrix.cpu }} -Ooptimize=ReleaseFast
+        run: zig build -Dtarget=${{ matrix.target }} -Dcpu=${{ matrix.cpu }} -Doptimize=ReleaseSafe
 
       - name: Package SDK Architecture (Unix)
         if: runner.os != 'Windows'
