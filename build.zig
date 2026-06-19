@@ -57,7 +57,7 @@ pub fn build(b: *std.Build) void {
 
     exe_mod.addIncludePath(b.path("lib/build/include"));
     exe_mod.addLibraryPath(b.path("lib/build/lib"));
-    exe_mod.linkSystemLibrary("expat", .{
+    exe_mod.linkSystemLibrary(if (os_tag == .windows) "expatMT" else "expat", .{
         .needed = true,
         .preferred_link_mode = .static,
         .search_strategy = .no_fallback,
