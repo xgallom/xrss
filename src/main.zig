@@ -1,5 +1,17 @@
 const std = @import("std");
+const base64 = std.base64.url_safe_no_pad;
 
+const base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._".*;
+
+const url_safe_no_pad = std.base64.Codecs{
+    .alphabet_chars = base64_alphabet,
+    .pad_char = null,
+    .decoderWithIgnore = undefined,
+    .Encoder = std.base64.Base64Encoder.init(base64_alphabet, null),
+    .Decoder = std.base64.Base64Decoder.init(base64_alphabet, null),
+};
+
+const datetime = @import("datetime.zig");
 const rss = @import("rss.zig");
 
 const HELP_STR =
@@ -47,16 +59,22 @@ pub fn main(init: std.process.Init) !void {
     const gpa = init.gpa;
     const aa: std.mem.Allocator = init.arena.allocator();
 
+    const env = init.environ_map;
+
     const args = try init.minimal.args.toSlice(aa);
     if (args.len != 2) {
         std.log.err("Requires exactly one argument\n{s}", .{HELP_STR});
         return error.ArgumentCountMismatch;
     }
+    if (args[1].len > 255) {
+        std.log.err("Limit to url length is 255 characters", .{});
+        return error.URLTooLong;
+    }
 
     const io = init.io;
 
-    var stdout_buf: [1024]u8 = undefined;
-    var stdout_writer: std.Io.File.Writer = .init(.stdout(), io, &stdout_buf);
+    const io_buf = try aa.alloc(u8, 1024);
+    var stdout_writer: std.Io.File.Writer = .init(.stdout(), io, io_buf);
     const stdout = &stdout_writer.interface;
 
     if (std.mem.eql(u8, args[1], "--help")) {
@@ -86,11 +104,115 @@ pub fn main(init: std.process.Init) !void {
         },
     }
 
-    var client: rss.Client = try .init(gpa);
+    var client: rss.Client = try .init(gpa, aa);
     defer client.deinit();
 
     try client.parse(response.written());
-    for (client.parser.channels.items) |*channel| {
+
+    var output: rss.Data = .init(gpa, aa);
+    defer output.deinit();
+    {
+        std.Io.Dir.createDirAbsolute(
+            io,
+            try appDir(env, aa),
+            .default_dir,
+        ) catch |err| switch (err) {
+            error.PathAlreadyExists => {},
+            else => return err,
+        };
+        const cache_dir = try std.Io.Dir.openDirAbsolute(io, try appDir(env, aa), .{
+            .access_sub_paths = true,
+        });
+        defer cache_dir.close(io);
+        const buf_len = base64.Encoder.calcSize(args[1].len) + rss.config.XRSS_FILE_EXT.len;
+        const name_buf = try aa.alloc(u8, buf_len);
+        const basename = base64.Encoder.encode(name_buf, args[1]);
+        @memcpy(name_buf[basename.len..], rss.config.XRSS_FILE_EXT);
+        var cache: rss.Data = .init(gpa, aa);
+        defer cache.deinit();
+        const has_cache = blk: {
+            const file = cache_dir.openFile(io, name_buf, .{
+                .allow_directory = false,
+            }) catch |err| switch (err) {
+                error.FileNotFound => break :blk false,
+                else => return err,
+            };
+            defer file.close(io);
+            var file_r = file.reader(io, io_buf);
+            try cache.read(&file_r.interface);
+            break :blk true;
+        };
+        {
+            const file = try cache_dir.createFile(io, name_buf, .{});
+            defer file.close(io);
+            var file_w = file.writer(io, io_buf);
+            try client.parser.data.write(&file_w.interface);
+            try file_w.flush();
+        }
+        if (has_cache) {
+            var to_delete: std.ArrayList(u64) = .empty;
+            defer to_delete.deinit(gpa);
+            loop: for (client.parser.data.channels.items) |*channel| {
+                for (cache.channels.items) |*cache_channel| {
+                    if (std.mem.eql(
+                        u8,
+                        channel.props.get(.title).?,
+                        cache_channel.props.get(.title).?,
+                    )) {
+                        const cache_build_date = try datetime.parseRfc1123ToNanos(
+                            cache_channel.props.get(
+                                .last_build_date,
+                            ) orelse return error.MissingBuildDate,
+                        );
+                        const channel_build_date = try datetime.parseRfc1123ToNanos(
+                            channel.props.get(
+                                .last_build_date,
+                            ) orelse return error.MissingBuildDate,
+                        );
+                        if (cache_build_date <= channel_build_date) {
+                            to_delete.clearRetainingCapacity();
+                            try to_delete.ensureUnusedCapacity(gpa, channel.items.items.len);
+                            for (channel.items.items, 0..) |*item, item_idx| {
+                                for (cache_channel.items.items) |*cache_item| {
+                                    if (std.mem.eql(
+                                        u8,
+                                        item.props.get(.guid) orelse return error.MissingGUID,
+                                        cache_item.props.get(.guid) orelse return error.MissingGUID,
+                                    )) {
+                                        const cache_pub_date = try datetime.parseRfc1123ToNanos(
+                                            cache_item.props.get(
+                                                .pub_date,
+                                            ) orelse return error.MissingPubDate,
+                                        );
+                                        const item_pub_date = try datetime.parseRfc1123ToNanos(
+                                            item.props.get(
+                                                .pub_date,
+                                            ) orelse return error.MissingPubDate,
+                                        );
+                                        if (cache_pub_date >= item_pub_date) {
+                                            to_delete.appendAssumeCapacity(item_idx);
+                                        }
+                                    }
+                                }
+                            }
+                            std.mem.sort(u64, to_delete.items, {}, std.sort.asc(u64));
+                            channel.items.orderedRemoveMany(to_delete.items);
+                            try output.channels.append(gpa, channel.*);
+                            channel.items = .empty;
+                        }
+                        continue :loop;
+                    }
+                }
+                try output.channels.append(gpa, channel.*);
+                channel.items = .empty;
+            }
+        } else {
+            output = client.parser.data;
+            client.parser.data = .init(gpa, aa);
+        }
+    }
+
+    for (output.channels.items) |*channel| {
         try stdout.print(FMT_CHANNEL, .{channel.props.get(.title).?});
         {
             var iter = channel.props.iterator();
@@ -118,9 +240,19 @@ pub fn main(init: std.process.Init) !void {
         }
         try stdout.print(FMT_CHANNEL_END, .{});
     }
-
-    // try stdout.writeAll(response.written());
     try stdout.flush();
+}
+
+fn appDir(env: *const std.process.Environ.Map, aa: std.mem.Allocator) ![]const u8 {
+    const home = env.get("USERPROFILE") orelse env.get("HOME") orelse {
+        std.log.err("Could not determine home directory", .{});
+        return error.EnvFailed;
+    };
+    return std.fs.path.join(aa, &.{ home, ".cache", "xrss" });
+}
+
+test {
+    _ = datetime;
 }
 
 test "simple test" {

@@ -1,12 +1,14 @@
 const std = @import("std");
-const fatal = std.process.fatal;
+const assert = std.debug.assert;
 const Allocator = std.mem.Allocator;
 
 const c = @cImport({
     @cInclude("expat.h");
 });
 
+pub const Data = @import("rss/Data.zig");
 pub const Parser = @import("rss/Parser.zig");
+pub const config = @import("rss/config.zig");
 
 const XML_BUFFER_LENGTH = 512;
 
@@ -14,7 +16,7 @@ pub const Client = struct {
     parser: *Parser,
     xml_parser: c.XML_Parser,
 
-    pub fn init(gpa: Allocator) !@This() {
+    pub fn init(gpa: Allocator, aa: Allocator) !@This() {
         var self: @This() = .{
             .parser = try gpa.create(Parser),
             .xml_parser = c.XML_ParserCreate(null) orelse {
@@ -22,7 +24,7 @@ pub const Client = struct {
                 return error.XMLParserFailed;
             },
         };
-        self.parser.* = .init(gpa);
+        self.parser.* = .init(gpa, aa);
         errdefer self.deinit();
         c.XML_SetUserData(self.xml_parser, @ptrCast(self.parser));
         c.XML_SetElementHandler(self.xml_parser, &Parser.elementStart, &Parser.elementEnd);
