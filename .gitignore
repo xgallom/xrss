@@ -1,5 +1,7 @@
 /.zig-cache
 /zig-out
+/lib/build
+/lib/expat/build
 
 .DS_Store
 

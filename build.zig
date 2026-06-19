@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
@@ -10,12 +11,31 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-    exe_mod.linkSystemLibrary("expat", .{ .needed = true, .preferred_link_mode = .dynamic });
+
+    exe_mod.addIncludePath(b.path("lib/build/include"));
+    exe_mod.addLibraryPath(b.path("lib/build/lib"));
+    exe_mod.linkSystemLibrary("expat", .{
+        .needed = true,
+        .preferred_link_mode = .static,
+        .search_strategy = .no_fallback,
+    });
 
     const exe = b.addExecutable(.{
         .name = "xrss",
         .root_module = exe_mod,
     });
+
+    if (b.graph.host.result.os.tag == .windows) {
+        const build_expat_ps = b.addSystemCommand(
+            &.{ "powershell", "-ExecutionPolicy", "Bypass", "-File", "build-expat.ps1" },
+        );
+        exe.step.dependOn(&build_expat_ps.step);
+    } else {
+        const build_expat_bash = b.addSystemCommand(
+            &.{ "bash", "build-expat.sh" },
+        );
+        exe.step.dependOn(&build_expat_bash.step);
+    }
 
     b.installArtifact(exe);
 
