@@ -64,8 +64,6 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           mkdir -p staging/bin
-          mkdir -p staging/${{ matrix.lib_dir }}
-          mkdir -p staging/include/xrss
           
           cp ${{ matrix.exe_src }} staging/bin/xrss
           
@@ -83,7 +81,6 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path staging/bin
-          New-Item -ItemType Directory -Force -Path staging/${{ matrix.lib_dir }}
           
           Copy-Item "${{ matrix.exe_src }}" -Destination "staging/bin/xrss.exe"
 
