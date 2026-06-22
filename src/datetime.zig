@@ -83,5 +83,5 @@ test parseRfc1123ToNanos {
     const timestamp_str = "Sat, 07 Sep 2002 09:42:31 GMT";
     const nanos = try parseRfc1123ToNanos(timestamp_str);
 
-    std.testing.expectEqual(nanos, 1031391751000000000);
+    try std.testing.expectEqual(nanos, 1031391751000000000);
 }

@@ -7,18 +7,18 @@ const c = @cImport({
 });
 
 pub const Data = @import("rss/Data.zig");
-pub const Parser = @import("rss/Parser.zig");
+pub const Parse = @import("rss/Parse.zig");
 pub const config = @import("rss/config.zig");
 
 const XML_BUFFER_LENGTH = 512;
 
 pub const Client = struct {
-    parser: *Parser,
+    parser: *Parse,
     xml_parser: c.XML_Parser,
 
     pub fn init(gpa: Allocator, aa: Allocator) !@This() {
         var self: @This() = .{
-            .parser = try gpa.create(Parser),
+            .parser = try gpa.create(Parse),
             .xml_parser = c.XML_ParserCreate(null) orelse {
                 std.log.err("Failed to create xml parser", .{});
                 return error.XMLParserFailed;
@@ -27,8 +27,8 @@ pub const Client = struct {
         self.parser.* = .init(gpa, aa);
         errdefer self.deinit();
         c.XML_SetUserData(self.xml_parser, @ptrCast(self.parser));
-        c.XML_SetElementHandler(self.xml_parser, &Parser.elementStart, &Parser.elementEnd);
-        c.XML_SetCharacterDataHandler(self.xml_parser, &Parser.characterData);
+        c.XML_SetElementHandler(self.xml_parser, &Parse.elementStart, &Parse.elementEnd);
+        c.XML_SetCharacterDataHandler(self.xml_parser, &Parse.characterData);
         return self;
     }
 
