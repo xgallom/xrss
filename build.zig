@@ -10,40 +10,12 @@ pub fn build(b: *std.Build) void {
         defer io_impl.deinit();
         const io = io_impl.io();
         const cwd = std.Io.Dir.cwd();
-        cwd.createDirPath(io, "lib/build/include") catch @panic("Failed creating include directory");
+        cwd.createDirPath(io, "lib/build/include") catch {
+            @panic("Failed creating include directory");
+        };
         cwd.createDirPath(io, "lib/build/lib") catch @panic("Failed creating lib directory");
         cwd.createDirPath(io, "lib/expat/build") catch @panic("Failed creating build directory");
     }
-
-    // const expat_mod = b.createModule(.{
-    //     .target = target,
-    //     .optimize = optimize,
-    //     .link_libc = true,
-    // });
-    //
-    // expat_mod.addIncludePath(b.path("lib/expat/lib"));
-    // expat_mod.addCSourceFiles(.{
-    //     .files = &.{
-    //         "lib/expat/lib/xmlparse.c",
-    //         "lib/expat/lib/xmlrole.c",
-    //         "lib/expat/lib/xmltok.c",
-    //     },
-    //     .flags = if (os_tag == .windows) &.{"-DXML_STATIC"} else &.{
-    //         "-DXML_STATIC",
-    //         if (os_tag.isDarwin() or os_tag == .freebsd)
-    //             "-DHAVE_ARC4RANDOM_BUF"
-    //         else if (os_tag == .linux)
-    //             "-DHAVE_GETRANDOM"
-    //         else
-    //             "-DXML_POOR_ENTROPY",
-    //     },
-    // });
-    //
-    // const expat = b.addLibrary(.{
-    //     .linkage = .static,
-    //     .name = "expat",
-    //     .root_module = expat_mod,
-    // });
 
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
@@ -52,16 +24,12 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    // exe_mod.addIncludePath(b.path("lib/expat/lib"));
-    // exe_mod.linkLibrary(expat);
-
     exe_mod.addIncludePath(b.path("lib/build/include"));
     exe_mod.addLibraryPath(b.path("lib/build/lib"));
-    exe_mod.linkSystemLibrary(if (os_tag == .windows) "libexpatMT" else "expat", .{
-        .needed = true,
-        .preferred_link_mode = .static,
-        .search_strategy = .no_fallback,
-    });
+    exe_mod.linkSystemLibrary(
+        if (os_tag == .windows) "libexpatMT" else "expat",
+        .{ .needed = true, .preferred_link_mode = .static, .search_strategy = .no_fallback },
+    );
 
     const exe = b.addExecutable(.{
         .name = "xrss",
